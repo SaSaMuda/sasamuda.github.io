@@ -99,7 +99,6 @@ const projectsData = [
         },
         images: [
             "assets/20251129_111604.jpg",
-            "assets/20251129_111640.jpg",
             "assets/image-1763199247491.jpg",
             "assets/image-1764352179358.jpg"
         ]
