@@ -336,4 +336,54 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
     }
+
+    // --- Contact Form AJAX Submission --- //
+    const contactForm = document.querySelector('.contact-form');
+    if (contactForm) {
+        contactForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const submitBtn = contactForm.querySelector('button[type="submit"]');
+            const originalBtnText = submitBtn.innerText;
+            submitBtn.innerText = 'Sending...';
+            submitBtn.disabled = true;
+
+            const formData = new FormData(contactForm);
+            const object = Object.fromEntries(formData);
+            const json = JSON.stringify(object);
+
+            fetch('https://api.web3forms.com/submit', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json'
+                },
+                body: json
+            })
+            .then(async (response) => {
+                if (response.status === 200) {
+                    submitBtn.innerText = 'Message Sent!';
+                    contactForm.reset();
+                    setTimeout(() => {
+                        submitBtn.innerText = originalBtnText;
+                        submitBtn.disabled = false;
+                    }, 3000);
+                } else {
+                    submitBtn.innerText = 'Error! Try again.';
+                    setTimeout(() => {
+                        submitBtn.innerText = originalBtnText;
+                        submitBtn.disabled = false;
+                    }, 3000);
+                }
+            })
+            .catch(error => {
+                console.error(error);
+                submitBtn.innerText = 'Error! Try again.';
+                setTimeout(() => {
+                    submitBtn.innerText = originalBtnText;
+                    submitBtn.disabled = false;
+                }, 3000);
+            });
+        });
+    }
 });
