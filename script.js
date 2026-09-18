@@ -135,6 +135,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const projectModal = document.getElementById('project-modal');
     const modalCloseBtn = document.getElementById('modal-close');
     const modalImage = document.getElementById('modal-image');
+    const modalVideo = document.getElementById('modal-video');
     const modalTitle = document.getElementById('modal-title');
     const modalDescription = document.getElementById('modal-description');
     const modalIndicators = document.getElementById('modal-indicators');
@@ -152,6 +153,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function applyTransform() {
         modalImage.style.transform = `translate(${translateX}px, ${translateY}px) scale(${zoomScale})`;
+        modalVideo.style.transform = `translate(${translateX}px, ${translateY}px) scale(${zoomScale})`;
     }
 
     function resetZoom() {
@@ -159,10 +161,12 @@ document.addEventListener('DOMContentLoaded', () => {
         translateX = 0;
         translateY = 0;
         modalImage.style.transition = 'transform 0.3s ease';
+        modalVideo.style.transition = 'transform 0.3s ease';
         applyTransform();
         // Remove transition after it's done so dragging is smooth
         setTimeout(() => {
             modalImage.style.transition = 'none';
+            modalVideo.style.transition = 'none';
         }, 300);
     }
     if (galleryContainer && typeof projectsData !== 'undefined') {
@@ -174,7 +178,11 @@ document.addEventListener('DOMContentLoaded', () => {
             // Build the cycling images container
             let imagesHTML = '';
             project.images.forEach((imgSrc, i) => {
-                imagesHTML += `<img src="${imgSrc}" class="${i === 0 ? 'active' : ''}" alt="${project.title.en}">`;
+                if (imgSrc.toLowerCase().endsWith('.mp4')) {
+                    imagesHTML += `<video src="${imgSrc}" class="${i === 0 ? 'active' : ''}" autoplay loop muted playsinline></video>`;
+                } else {
+                    imagesHTML += `<img src="${imgSrc}" class="${i === 0 ? 'active' : ''}" alt="${project.title.en}">`;
+                }
             });
 
             card.innerHTML = `
@@ -193,7 +201,7 @@ document.addEventListener('DOMContentLoaded', () => {
             
             // Setup automatic cycling
             const imgContainer = card.querySelector('.card-image');
-            const imgs = imgContainer.querySelectorAll('img');
+            const imgs = imgContainer.querySelectorAll('img, video');
             if (imgs.length > 1) {
                 let currentIdx = 0;
                 setInterval(() => {
@@ -219,7 +227,16 @@ document.addEventListener('DOMContentLoaded', () => {
             const project = projectsData[currentProjectIndex];
             const lang = localStorage.getItem('santos_lang') || 'en';
             
-            modalImage.src = project.images[currentImageIndex];
+            const currentSrc = project.images[currentImageIndex];
+            if (currentSrc.toLowerCase().endsWith('.mp4')) {
+                modalImage.style.display = 'none';
+                modalVideo.style.display = 'block';
+                modalVideo.src = currentSrc;
+            } else {
+                modalVideo.style.display = 'none';
+                modalImage.style.display = 'block';
+                modalImage.src = currentSrc;
+            }
             resetZoom();
             modalTitle.innerText = project.title[lang] || project.title.en;
             modalTitle.setAttribute('data-en', project.title.en);
